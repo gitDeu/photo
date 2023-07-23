@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Search & Download</title>
+  <!-- Link to Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" href="https://www.freepnglogos.com/uploads/smile-png/happy-smile-emoji-emoticon-icon-transparent-png-svg-vector-25.png" type="image/png">
+
+  <style>
+    .center-text {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 10vh;
+      font-family: "Comic Sans MS", cursive;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-8">
+    <h1 class="center-text text-3xl font-bold mb-4">Photo Search & Download</h1>
+    <div class="flex justify-center mb-4">
+      <input
+        type="text"
+        id="searchQuery"
+        class="w-64 p-2 border border-gray-300 rounded-l focus:outline-none"
+        placeholder="Enter your search term"
+      />
+      <div class="flex">
+        <input
+          type="number"
+          id="imageWidth"
+          class="w-32 p-2 border border-gray-300 rounded-l focus:outline-none"
+          placeholder="Width 100px"
+        />
+        <input
+          type="number"
+          id="imageHeight"
+          class="w-32 p-2 border border-l-0 border-gray-300 rounded-r focus:outline-none"
+          placeholder="Height 100px"
+        />
+      </div>
+      <button
+        id="searchBtn"
+        class="bg-blue-500 text-white px-4 rounded-r"
+      >
+        Search
+      </button>
+    </div>
+    <div id="imageContainer" class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchBtn = document.getElementById("searchBtn");
+      const searchQuery = document.getElementById("searchQuery");
+      const imageWidthInput = document.getElementById("imageWidth");
+      const imageHeightInput = document.getElementById("imageHeight");
+      const imageContainer = document.getElementById("imageContainer");
+
+      // Function to fetch and display images based on search query and size
+      async function fetchImages(query, width, height) {
+        try {
+          // Clear previous images
+          imageContainer.innerHTML = "";
+
+          // Set default values if width or height is empty
+          const defaultWidth = width.trim() === "" ? "1000" : width;
+          const defaultHeight = height.trim() === "" ? "1000" : height;
+
+          // Fetch and display new images
+          for (let i = 0; i < 19; i++) {
+            const response = await fetch(`https://source.unsplash.com/${defaultWidth}x${defaultHeight}/?${query}`);
+            const imageUrl = response.url;
+            displayImage(imageUrl);
+          }
+        } catch (error) {
+          console.error("Error fetching images:", error);
+        }
+      }
+
+      // Function to display the image and download button
+      function displayImage(url) {
+        const imageContainerDiv = document.createElement("div");
+        imageContainerDiv.classList.add("relative");
+
+        const imageElement = document.createElement("img");
+        imageElement.src = url;
+        imageElement.alt = "Unsplash Image";
+        imageElement.classList.add("w-full", "h-auto", "rounded");
+        imageContainerDiv.appendChild(imageElement);
+
+        const downloadButton = document.createElement("button");
+        downloadButton.innerText = "Download";
+        downloadButton.classList.add("bg-blue-500", "text-white", "px-2", "py-1", "rounded", "absolute", "bottom-4", "right-4");
+        downloadButton.addEventListener("click", function () {
+          downloadImage(url);
+        });
+        imageContainerDiv.appendChild(downloadButton);
+
+        imageContainer.appendChild(imageContainerDiv);
+      }
+
+      // Function to download the image
+      function downloadImage(url) {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "unsplash_image";
+        link.click();
+      }
+
+      // Event listener for search button click
+      searchBtn.addEventListener("click", function () {
+        const query = searchQuery.value;
+        const width = imageWidthInput.value;
+        const height = imageHeightInput.value;
+        if (query.trim() !== "") {
+          fetchImages(query, width, height);
+        }
+      });
+
+      // Event listener for pressing 'Enter' key in search input or size inputs
+      searchQuery.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          searchBtn.click();
+          event.preventDefault();
+        }
+      });
+
+      imageWidthInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          searchBtn.click();
+          event.preventDefault();
+        }
+      });
+
+      imageHeightInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          searchBtn.click();
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
